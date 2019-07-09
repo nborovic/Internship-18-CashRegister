@@ -14,17 +14,6 @@ namespace CashRegister.Data.Entities.Models
         public int Count { get; set; }
         public ICollection<ProductReceipt> ProductsReceipts { get; set; }
 
-        public Product(int id, Guid barcode, string name, float price, float taxRate, int count, ICollection<ProductReceipt> productsReceipts)
-        {
-            Id = id;
-            Barcode = barcode;
-            Name = name;
-            Price = price;
-            TaxRate = taxRate;
-            Count = count;
-            ProductsReceipts = productsReceipts;
-        }
-
         public override bool Equals(object obj)
         {
             if ((obj == null) || !GetType().Equals(obj.GetType()))
@@ -34,7 +23,7 @@ namespace CashRegister.Data.Entities.Models
 
             var product = (Product)obj;
 
-            return (product.Id == Id && product.Name == Name);
+            return string.Equals(product.Name, Name, StringComparison.CurrentCultureIgnoreCase);
         }
     }
 }

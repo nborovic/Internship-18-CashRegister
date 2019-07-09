@@ -1,0 +1,57 @@
+.products-list,
+.basket {
+  width: 50%;
+  padding: 50px;
+}
+
+.products-list__product {
+  padding: 5px;
+  background: lightgrey;
+  border: 1px solid #000;
+}
+
+.products-wrapper {
+  display: flex;
+}
+
+.products-list__product--selected {
+  background: lightblue;
+}
+
+.products__edit-form {
+  width: 300px;
+  margin: 0 auto;
+  padding-top: 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-form__input,
+.products__edit-form > button,
+.edit-form__gen-barcode {
+  width: 100%;
+}
+
+.edit-form__input--readonly {
+  background: grey;
+}
+
+.edit-form__gen-barcode {
+  width: 300px;
+  text-align: center;
+  background: lightgrey;
+  border: 1px solid #000;
+  cursor: pointer;
+}
+
+.edit-form__error {
+  color: red;
+}
+
+.edit-form__label {
+  font-weight: 600;
+}
+
+.edit-form__submit {
+  margin-top: 15px;
+}

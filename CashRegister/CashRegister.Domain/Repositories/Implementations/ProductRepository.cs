@@ -22,7 +22,7 @@ namespace CashRegister.Domain.Repositories.Implementations
 
         public bool Add(Product productToAdd)
         {
-            var productExists = _context.Products.Any(product => string.Equals(product, StringComparison.CurrentCultureIgnoreCase));
+            var productExists = _context.Products.Any(product => product.Equals(productToAdd));
 
             if (productExists) return false;
 
@@ -33,10 +33,6 @@ namespace CashRegister.Domain.Repositories.Implementations
 
         public bool Edit(Product editedProduct)
         {
-            var productExists = _context.Products.Any(product => string.Equals(product, StringComparison.CurrentCultureIgnoreCase));
-
-            if (!productExists) return false;
-
             var productToEdit = _context.Products.Find(editedProduct.Id);
 
             if (productToEdit == null || productToEdit.Name != editedProduct.Name || productToEdit.Count != editedProduct.Count) return false;
@@ -48,15 +44,20 @@ namespace CashRegister.Domain.Repositories.Implementations
             return true;
         }
 
-        public bool Remove(Product productToRemove)
+        public bool Delete(int idOfProductToDelete)
         {
-            var productExists = _context.Products.Any(product => string.Equals(product, StringComparison.CurrentCultureIgnoreCase));
+            var productToDelete = _context.Products.Find(idOfProductToDelete);
 
-            if (!productExists) return false;
+            if (productToDelete == null) return false;
 
-            _context.Products.Remove(productToRemove);
+            _context.Products.Remove(productToDelete);
             _context.SaveChanges();
             return true;
+        }
+
+        public bool NameExists(string name)
+        {
+            return _context.Products.Any(product => product.Name == name);
         }
     }
 }

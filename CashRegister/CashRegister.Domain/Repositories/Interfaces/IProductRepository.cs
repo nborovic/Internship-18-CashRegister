@@ -11,7 +11,8 @@ namespace CashRegister.Domain.Repositories.Interfaces
         Product GetById(int id);
         bool Add(Product productToAdd);
         bool Edit(Product editedProduct);
-        bool Remove(Product productToRemove);
+        bool Delete(int idOfProductToDelete);
+        bool NameExists(string name);
 
     }
 }
