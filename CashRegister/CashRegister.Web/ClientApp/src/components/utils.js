@@ -1,5 +1,3 @@
-const getApiData = async promise => {
-  const response = await promise;
-};
+export const validateGuid = require("uuid-validate");
 
-export default getApiData();
+export const generateGuid = require("uuid/v4");

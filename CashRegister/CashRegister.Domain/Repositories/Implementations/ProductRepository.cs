@@ -44,17 +44,6 @@ namespace CashRegister.Domain.Repositories.Implementations
             return true;
         }
 
-        public bool Delete(int idOfProductToDelete)
-        {
-            var productToDelete = _context.Products.Find(idOfProductToDelete);
-
-            if (productToDelete == null) return false;
-
-            _context.Products.Remove(productToDelete);
-            _context.SaveChanges();
-            return true;
-        }
-
         public bool NameExists(string name)
         {
             return _context.Products.Any(product => product.Name == name);

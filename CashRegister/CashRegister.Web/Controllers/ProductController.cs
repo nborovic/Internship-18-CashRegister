@@ -45,16 +45,6 @@ namespace CashRegister.Web.Controllers
             return Ok();
         }
 
-        [HttpDelete("remove/{id}")]
-
-        public IActionResult Remove(int id)
-        {
-            var removeSuccessful = _productRepository.Delete(id);
-
-            if (!removeSuccessful) return Forbid();
-            return Ok();
-        }
-
         [HttpGet("get-by-id/{id}")]
 
         public IActionResult GetById(int id)

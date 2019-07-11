@@ -1,0 +1,8 @@
+.menu__item {
+  display: inline-block;
+  background: grey;
+}
+
+.menu__item--selected {
+  background: lightblue;
+}

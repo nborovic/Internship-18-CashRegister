@@ -3,10 +3,36 @@ import { withFormik, Form, Field } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 
-const AddProduct = ({ handleSubmit, errors, touched, isSubmitting }) => (
+import { validateGuid, generateGuid } from "../utils";
+
+const AddProduct = ({
+  handleSubmit,
+  errors,
+  touched,
+  isSubmitting,
+  setFieldValue
+}) => (
   <Form>
     <Field type="text" name="name" placeholder="Name" />
     {touched.name && errors.name && <p>{errors.name}</p>}
+    <label className="edit-form__label" htmlFor="barcode">
+      Barcode:
+    </label>
+    <Field
+      className="edit-form__input"
+      type="text"
+      name="barcode"
+      placeholder="Barcode"
+    />
+    {touched.barcode && errors.barcode && (
+      <p className="edit-form__error">{errors.barcode}</p>
+    )}
+    <span
+      className="edit-form__gen-barcode"
+      onClick={() => setFieldValue("barcode", generateGuid())}
+    >
+      Generate barcode
+    </span>
     <Field type="number" name="price" placeholder="Price" />
     {touched.price && errors.price && <p>{errors.price}</p>}
     <Field type="number" name="taxRate" placeholder="Tax rate" />
@@ -25,7 +51,8 @@ export default withFormik({
       name: "",
       price: "",
       taxRate: "",
-      count: ""
+      count: "",
+      barcode: ""
     };
   },
 
@@ -40,6 +67,11 @@ export default withFormik({
         });
         return !response.data;
       }),
+    barcode: Yup.string()
+      .required()
+      .test("is-guid", "Barcode must be guid value", value =>
+        validateGuid(value)
+      ),
     price: Yup.number().required("Price is required"),
     taxRate: Yup.number().required("Tax rate is required"),
     count: Yup.number()
@@ -50,7 +82,7 @@ export default withFormik({
   handleSubmit(values, { resetForm }) {
     const productToAdd = {
       name: values.name,
-      barcode: require("uuid/v4"),
+      barcode: values.barcode,
       price: values.price,
       taxRate: values.taxRate,
       count: values.count

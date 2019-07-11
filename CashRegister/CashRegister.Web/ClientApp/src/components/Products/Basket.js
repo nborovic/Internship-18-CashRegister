@@ -7,11 +7,12 @@ const Basket = props => (
       ? props.basket.map((product, index) => (
           <div key={index} className="products-list__product">
             <p>
-              {product.id} | {product.name} | {product.price}
+              {product.name} | {product.price}kn | {product.count}
             </p>
           </div>
         ))
       : null}
+    <button onClick={() => props.paymentHandler()}>Payment</button>
   </div>
 );
 

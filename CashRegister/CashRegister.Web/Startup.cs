@@ -28,6 +28,7 @@ namespace CashRegister.Web
             services.AddDbContext<CashRegisterContext>(options => options.UseSqlServer(Configuration.GetConnectionString("CashRegisterContext")));
 
             services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IReceiptRepository, ReceiptRepository>();
 
             services.AddMvc().AddJsonOptions(options => {
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;

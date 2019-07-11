@@ -14,5 +14,17 @@ namespace CashRegister.Data.Entities.Models
         public float PriceWithTax { get; set; }
         public float ExciseDutyPrice { get; set; }
         public float StandardProductsPrice { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if ((obj == null) || !GetType().Equals(obj.GetType()))
+            {
+                return false;
+            }
+
+            var receipt = (Receipt)obj;
+
+            return Equals(receipt.Id, Id);
+        }
     }
 }

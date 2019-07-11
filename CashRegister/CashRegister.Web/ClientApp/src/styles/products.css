@@ -10,6 +10,23 @@
   border: 1px solid #000;
 }
 
+.products__basket-add {
+  display: none;
+  z-index: 99;
+  background: grey;
+  border: 1px solid #000;
+}
+
+.products__basket-add--open {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  margin: 0 auto;
+}
+
 .products-wrapper {
   display: flex;
 }
