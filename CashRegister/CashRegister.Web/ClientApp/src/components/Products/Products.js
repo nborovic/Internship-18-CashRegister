@@ -17,7 +17,7 @@ import BasketAdd from "./BasketAdd";
 import "../../styles/products.css";
 import { generateGuid, formatDate, empty } from "../utils";
 
-const _ = require("lodash");
+const debounce = require("lodash/debounce");
 
 class Products extends Component {
   constructor(props) {
@@ -123,11 +123,10 @@ class Products extends Component {
     this.setState({ searchBy: event.target.value });
   };
 
-  handleSearchChange = event => {
-    const searchValue = event.target.value;
+  handleSearchChange = debounce(searchValue => {
     const products = this.props.allProducts;
 
-    if (event.target.value.length < 3) {
+    if (searchValue.length < 3) {
       if (products.length !== this.props.productsByName.length)
         this.props.getProductsByName("");
       return;
@@ -147,7 +146,7 @@ class Products extends Component {
         selectedProduct: newSelected
       });
     });
-  };
+  }, 1000);
 
   handleCountInputChange = event => {
     this.setState({ basketCountValue: event.target.value });

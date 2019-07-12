@@ -8,7 +8,7 @@ const ProductsList = props => (
       type="text"
       name="search"
       placeholder="Search"
-      onChange={e => props.searchChangeHandler(e)}
+      onChange={e => props.searchChangeHandler(e.target.value)}
     />
     <select onChange={e => props.searchMethodChangeHandler(e)}>
       <option value="name">By name</option>

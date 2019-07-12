@@ -28,6 +28,20 @@ namespace CashRegister.Web.Controllers
             return Ok(_receiptRepository.GetAll());
         }
 
+        [HttpGet("sliced")]
+
+        public IActionResult GetSliced(int amount, int beginningIndex)
+        {
+            var response = new
+            {
+                Data = _receiptRepository.GetSliced(amount, beginningIndex),
+                Page = (beginningIndex + amount) / amount,
+                TotalPages = (_receiptRepository.GetAll().Count + amount - 1) / amount
+            };
+            
+            return Ok(response);
+        }
+
         [HttpPost("add")]
 
         public IActionResult Add(Receipt receiptToAdd)
