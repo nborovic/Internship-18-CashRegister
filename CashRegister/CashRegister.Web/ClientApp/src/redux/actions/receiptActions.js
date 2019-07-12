@@ -20,6 +20,7 @@ export const getReceiptById = id => dispatch => {
 };
 
 export const getSlicedReceipts = (amount, beginningIndex) => dispatch => {
+  console.log("je");
   axios
     .get(
       `api/receipts/sliced?amount=${amount}&beginningIndex=${beginningIndex}`
@@ -32,6 +33,20 @@ export const getSlicedReceipts = (amount, beginningIndex) => dispatch => {
     });
 };
 
-export const getReceiptsByDate = () => dispatch => {
-  dispatch({ type: GET_RECEIPTS_BY_DATE });
+export const getReceiptsByDate = (
+  amount,
+  beginningIndex,
+  dateAsString
+) => dispatch => {
+  axios
+    .get(
+      `api/receipts/sliced?amount=${amount}&beginningIndex=${beginningIndex}&dateAsString=${dateAsString}`
+    )
+    .then(res => {
+      console.log(res.data);
+      dispatch({
+        type: GET_SLICED_RECEIPTS,
+        payload: res.data
+      });
+    });
 };

@@ -30,16 +30,32 @@ namespace CashRegister.Web.Controllers
 
         [HttpGet("sliced")]
 
-        public IActionResult GetSliced(int amount, int beginningIndex)
+        public IActionResult GetSliced(int amount, int beginningIndex, string dateAsString)
         {
-            var response = new
+            if (dateAsString != null)
             {
-                Data = _receiptRepository.GetSliced(amount, beginningIndex),
-                Page = (beginningIndex + amount) / amount,
-                TotalPages = (_receiptRepository.GetAll().Count + amount - 1) / amount
-            };
-            
-            return Ok(response);
+                var date = DateTime.Parse(dateAsString);
+                var receiptsByDate = _receiptRepository.GetByDate(date);
+
+                var response = new
+                {
+                    Data = _receiptRepository.GetSliced(amount, beginningIndex, date),
+                    Page = receiptsByDate.Count != 0 ? (beginningIndex + amount) / amount : 0,
+                    TotalPages = (receiptsByDate.Count + amount - 1) / amount
+                };
+
+                return Ok(response);
+            } else
+            {
+                var response = new
+                {
+                    Data = _receiptRepository.GetSliced(amount, beginningIndex),
+                    Page = (beginningIndex + amount) / amount,
+                    TotalPages = (_receiptRepository.GetAll().Count + amount - 1) / amount
+                };
+
+                return Ok(response);
+            }
         }
 
         [HttpPost("add")]
