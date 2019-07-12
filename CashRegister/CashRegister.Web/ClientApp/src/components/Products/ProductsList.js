@@ -1,4 +1,5 @@
 import React from "react";
+import { empty } from "../utils";
 
 const ProductsList = props => (
   <div className="products-list">
@@ -14,7 +15,7 @@ const ProductsList = props => (
       <option value="barcode">By barcode</option>
     </select>
 
-    {props.loading ? (
+    {props.productsLoading ? (
       <p>Loading...</p>
     ) : (
       props.products.map((product, index) => (
@@ -33,6 +34,7 @@ const ProductsList = props => (
         </div>
       ))
     )}
+    {empty(props.products) ? <p>No results</p> : null}
   </div>
 );
 

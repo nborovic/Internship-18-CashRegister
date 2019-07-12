@@ -4,10 +4,7 @@ import * as Yup from "yup";
 import axios from "axios";
 
 import { connect } from "react-redux";
-import {
-  getProductById,
-  getAllProducts
-} from "../../redux/actions/productActions";
+import { getProductById } from "../../redux/actions/productActions";
 
 const validateGuid = require("uuid-validate");
 
@@ -103,29 +100,34 @@ const EditProduct = ({
 };
 
 const mapStateToProps = state => ({
-  products: state.products.items,
-  product: state.product.item
+  product: state.product.selectedItem
 });
 
 const mapDispatchToProps = {
-  getProductById,
-  getAllProducts
+  getProductById
 };
 
 const EnhancedForm = withFormik({
   enableReinitialize: true,
 
   mapPropsToValues: props => {
-    const { id } = props.match.params;
+    const id = parseInt(props.match.params.id);
 
-    if (props.product.id !== parseInt(id)) props.getProductById(id);
+    if (props.product.id !== id) props.getProductById(id);
+    console.log(
+      props.product.name,
+      props.product.barcode,
+      props.product.price,
+      props.product.taxRate,
+      props.product.count
+    );
 
     return {
-      name: props.product.id ? props.product.name : "",
-      barcode: props.product.id ? props.product.barcode : "",
-      price: props.product.id ? props.product.price : "",
-      taxRate: props.product.id ? props.product.taxRate : "",
-      count: props.product.id ? props.product.count : ""
+      name: props.product.name,
+      barcode: props.product.barcode,
+      price: props.product.price,
+      taxRate: props.product.taxRate,
+      count: props.product.count
     };
   },
 
@@ -136,12 +138,26 @@ const EnhancedForm = withFormik({
         validateGuid(value)
       ),
     price: Yup.number().required("Price is required"),
-    taxRate: Yup.number().required("Tax rate is required")
+    taxRate: Yup.number()
+      .min(0, "Tax rate must be between 0 and 100")
+      .max(100, "Tax rate must be between 0 and 100")
+      .required("Tax rate is required")
   }),
 
-  handleSubmit: (values, { resetForm, props }) => {
-    console.log(props.product);
-    // axios.post("api/products/edit", editedProduct).then(resetForm);
+  handleSubmit: (values, { props }) => {
+    const editedProduct = {
+      id: props.product.id,
+      name: props.product.name,
+      barcode: values.barcode,
+      price: values.price,
+      taxRate: values.taxRate,
+      count: props.product.count
+    };
+
+    axios
+      .post("api/products/edit", editedProduct)
+      .then(props.history.push("/products"))
+      .catch(err => alert(err));
   }
 })(EditProduct);
 

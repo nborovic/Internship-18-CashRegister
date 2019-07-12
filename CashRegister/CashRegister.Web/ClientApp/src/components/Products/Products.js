@@ -1,58 +1,59 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import printd from "printd";
+import lodash from "lodash";
 
 import { connect } from "react-redux";
-import { getAllProducts } from "../../redux/actions/productActions";
+import {
+  getAllProducts,
+  getProductsByName
+} from "../../redux/actions/productActions";
 
 import ProductsList from "./ProductsList";
 import Basket from "./Basket";
 import BasketAdd from "./BasketAdd";
 
 import "../../styles/products.css";
-import { generateGuid } from "../utils";
+import { generateGuid, formatDate, empty } from "../utils";
+
+const _ = require("lodash");
 
 class Products extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      products: [],
-      productsList: [],
       basket: [],
-      loading: true,
       selectedProduct: { id: null },
       searchBy: "name",
       searchValue: "",
       displayBasketAdd: false,
-      basketCountInput: 0
+      basketCountValue: 0
     };
+
+    this.basket = React.createRef();
   }
 
   componentDidMount() {
-    axios.get("api/products/all").then(res => {
-      let allProducts = res.data;
-      this.setState({
-        products: allProducts,
-        productsList: allProducts,
-        loading: false
-      });
-    });
+    this.props.getAllProducts();
+    this.props.getProductsByName("");
 
     document.onkeydown = this.handleKeyPress;
   }
 
   handleKeyPress = key => {
-    const indexOfSelectedProduct = this.state.productsList.indexOf(
+    const indexOfSelectedProduct = this.props.productsByName.indexOf(
       this.state.selectedProduct
     );
 
-    const productBefore = this.state.productsList[indexOfSelectedProduct - 1];
-    const productAfter = this.state.productsList[indexOfSelectedProduct + 1];
+    const productBefore = this.props.productsByName[indexOfSelectedProduct - 1];
+    const productAfter = this.props.productsByName[indexOfSelectedProduct + 1];
     let updatedBasket = JSON.parse(JSON.stringify(this.state.basket));
 
     switch (key.keyCode) {
       case 38:
         if (productBefore) this.setState({ selectedProduct: productBefore });
+        console.log(this.basket.current);
         break;
 
       case 40:
@@ -60,7 +61,7 @@ class Products extends Component {
         break;
 
       case 27:
-        this.setState({ displayBasketAdd: false, basketCountInput: 0 });
+        this.setState({ displayBasketAdd: false, basketCountValue: 0 });
         break;
 
       case 13:
@@ -71,9 +72,9 @@ class Products extends Component {
 
           this.setState({
             displayBasketAdd: true,
-            basketCountInput: basketProduct
+            basketCountValue: basketProduct
               ? basketProduct.count
-              : this.state.basketCountInput
+              : this.state.basketCountValue
           });
         } else this.handleAddProductToBasket();
         break;
@@ -107,7 +108,7 @@ class Products extends Component {
 
       this.setState({
         selectedProduct: product,
-        basketCountInput: basketProduct.count
+        basketCountValue: basketProduct.count
       });
 
       this.setState({
@@ -123,39 +124,41 @@ class Products extends Component {
   };
 
   handleSearchChange = event => {
-    const products = this.state.products;
-    let filteredProducts = [];
+    const searchValue = event.target.value;
+    const products = this.props.allProducts;
 
-    if (this.state.searchBy === "name")
-      filteredProducts = products.filter(product =>
-        product.name.includes(event.target.value)
-      );
-    else
-      products.filter(product => product.barcode.includes(event.target.value));
+    if (event.target.value.length < 3) {
+      if (products.length !== this.props.productsByName.length)
+        this.props.getProductsByName("");
+      return;
+    }
 
-    const newSelected = filteredProducts.some(
-      product => product === this.state.selectedProduct
-    )
-      ? this.state.selectedProduct
-      : { id: -1 };
+    this.props.getProductsByName(searchValue).then(data => {
+      const { payload } = data;
 
-    this.setState({
-      searchValue: event.target.value,
-      selectedProduct: newSelected,
-      productsList: filteredProducts
+      const newSelected = payload.some(
+        product => product === this.state.selectedProduct
+      )
+        ? this.state.selectedProduct
+        : { id: -1 };
+
+      this.setState({
+        searchValue: searchValue,
+        selectedProduct: newSelected
+      });
     });
   };
 
   handleCountInputChange = event => {
-    this.setState({ basketCountInput: event.target.value });
+    this.setState({ basketCountValue: event.target.value });
   };
 
   handleAddProductToBasket = () => {
     const basketProduct = Object.assign({}, this.state.selectedProduct);
 
-    if (this.state.basketCountInput > basketProduct.count) return;
+    if (this.state.basketCountValue > basketProduct.count) return;
 
-    basketProduct.count = parseInt(this.state.basketCountInput);
+    basketProduct.count = parseInt(this.state.basketCountValue);
 
     let basket = JSON.parse(JSON.stringify(this.state.basket));
 
@@ -167,42 +170,71 @@ class Products extends Component {
     this.setState({
       basket: basket,
       displayBasketAdd: false,
-      basketCountInput: 0
+      basketCountValue: 0
     });
+  };
+
+  calculatePrices = basket => {
+    let priceWithoutTax = 0;
+    let priceWithTax = 0;
+    let exciseDutyPrice = 0;
+    let standardProductsPrice = 0;
+
+    basket.forEach(product => {
+      priceWithoutTax += product.price * product.count;
+      priceWithTax +=
+        (product.price + (product.price * product.taxRate) / 100) *
+        product.count;
+      exciseDutyPrice +=
+        product.taxRate === 5
+          ? (product.price + (product.price * product.taxRate) / 100) *
+            product.count
+          : 0;
+      standardProductsPrice +=
+        product.taxRate === 25
+          ? (product.price + (product.price * product.taxRate) / 100) *
+            product.count
+          : 0;
+    });
+
+    return {
+      priceWithoutTax,
+      priceWithTax,
+      exciseDutyPrice,
+      standardProductsPrice
+    };
   };
 
   handlePayment = () => {
     const basket = this.state.basket;
-    const dateNow = new Date();
+
+    if (empty(basket)) return;
+
     const receiptId = generateGuid();
-    const productReceipts = [];
-    basket.forEach(product =>
-      productReceipts.push({ productId: product.id, receiptId: receiptId })
-    );
+
+    const productReceipts = basket.map(product => ({
+      productId: product.id,
+      receiptId: receiptId
+    }));
+
+    const dateNow = new Date();
+
+    const prices = this.calculatePrices(basket);
 
     const receipt = {
       id: receiptId,
-      date:
-        dateNow.getFullYear() +
-        "-" +
-        (dateNow.getMonth() + 1) +
-        "-" +
-        dateNow.getDate() +
-        " " +
-        dateNow.getHours() +
-        ":" +
-        dateNow.getMinutes() +
-        ":" +
-        dateNow.getSeconds(),
+      date: formatDate(dateNow),
       productsReceipts: productReceipts,
-      priceWithoutTax: 5,
-      priceWithTax: 15,
-      exciseDutyPrice: 7,
-      standardProductsPrice: 8
+      priceWithoutTax: prices.priceWithoutTax,
+      priceWithTax: prices.priceWithTax,
+      exciseDutyPrice: prices.exciseDutyPrice,
+      standardProductsPrice: prices.standardProductsPrice
     };
 
-    axios.get("api/receipts/all").then(res => console.log(res.data));
     axios.post("api/receipts/add", receipt).then(res => console.log(res.data));
+
+    const receiptt = new printd();
+    receiptt.print(this.basket.current);
 
     this.setState({ basket: [] });
   };
@@ -213,8 +245,8 @@ class Products extends Component {
         <main>
           <div className="products-wrapper">
             <ProductsList
-              loading={this.state.loading}
-              products={this.state.productsList}
+              products={this.props.productsByName}
+              productsLoading={this.props.productsByNameLoading}
               selectedProduct={this.state.selectedProduct}
               selectHandler={this.handleSelect}
               searchChangeHandler={this.handleSearchChange}
@@ -223,14 +255,15 @@ class Products extends Component {
             <Basket
               basket={this.state.basket}
               paymentHandler={this.handlePayment}
+              calculatePrices={this.calculatePrices}
+              ref={this.basket}
             />
             <BasketAdd
               display={this.state.displayBasketAdd}
-              count={this.state.selectedProduct.count}
-              addProductToBasketHandler={this.handleAddProductToBasket}
               product={this.state.selectedProduct}
+              addProductToBasketHandler={this.handleAddProductToBasket}
               countInputChangeHandler={this.handleCountInputChange}
-              basketCountInput={this.state.basketCountInput}
+              basketCountValue={this.state.basketCountValue}
             />
           </div>
         </main>
@@ -241,4 +274,19 @@ class Products extends Component {
   }
 }
 
-export default Products;
+const mapStateToProps = state => ({
+  allProducts: state.products.allItems,
+  allProductsLoading: state.products.allItemsLoading,
+  productsByName: state.products.itemsByName,
+  productsByNameLoading: state.products.itemsByNameLoading
+});
+
+const mapDispatchToProps = {
+  getAllProducts,
+  getProductsByName
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Products);

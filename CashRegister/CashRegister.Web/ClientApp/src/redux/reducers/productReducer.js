@@ -1,9 +1,16 @@
-import { GET_ALL_PRODUCTS, GET_PRODUCT_BY_ID } from "../actions/types";
+import {
+  GET_ALL_PRODUCTS,
+  GET_PRODUCT_BY_ID,
+  GET_PRODUCTS_BY_NAME
+} from "../actions/types";
 
 const initialState = {
-  items: [],
-  item: {
-    id: null,
+  allItems: [],
+  allItemsLoading: true,
+  itemsByName: [],
+  itemsByNameLoading: true,
+  selectedItem: {
+    id: 0,
     name: "",
     barcode: "",
     price: 0,
@@ -17,12 +24,19 @@ export default function(state = initialState, action) {
     case GET_ALL_PRODUCTS:
       return {
         ...state,
-        items: action.payload
+        allItems: action.payload,
+        allItemsLoading: false
       };
     case GET_PRODUCT_BY_ID:
       return {
         ...state,
-        item: action.payload
+        selectedItem: action.payload
+      };
+    case GET_PRODUCTS_BY_NAME:
+      return {
+        ...state,
+        itemsByName: action.payload,
+        itemsByNameLoading: false
       };
     default:
       return state;

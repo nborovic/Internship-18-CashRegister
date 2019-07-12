@@ -6,12 +6,13 @@ const BasketAdd = props => (
       props.display ? "products__basket-add--open" : ""
     }`}
   >
-    <p>Available: {props.count}</p>
+    <p>{props.product.name}</p>
+    <p>Available: {props.product.count}</p>
     <input
       type="number"
       name="count"
       placeholder="Count"
-      value={props.basketCountInput}
+      value={props.basketCountValue}
       onChange={e => props.countInputChangeHandler(e)}
     />
     <button type="submit" onClick={e => props.addProductToBasketHandler(e)}>

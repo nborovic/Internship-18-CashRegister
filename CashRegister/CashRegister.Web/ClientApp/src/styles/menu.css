@@ -1,6 +1,6 @@
 .menu__item {
   display: inline-block;
-  background: grey;
+  background: lightgrey;
 }
 
 .menu__item--selected {

@@ -4,6 +4,7 @@ using System.Linq;
 using CashRegister.Data.Entities;
 using CashRegister.Data.Entities.Models;
 using CashRegister.Domain.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace CashRegister.Domain.Repositories.Implementations
 {
@@ -27,7 +28,7 @@ namespace CashRegister.Domain.Repositories.Implementations
             return true;
         }
 
-        public List<Receipt> GetAll() => _context.Receipts.ToList();
+        public List<Receipt> GetAll() => _context.Receipts.Include(receipt => receipt.ProductsReceipts).ToList();
 
         public Receipt GetById(Guid id) => _context.Receipts.Find(id);
     }

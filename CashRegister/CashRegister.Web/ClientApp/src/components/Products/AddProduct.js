@@ -73,7 +73,10 @@ export default withFormik({
         validateGuid(value)
       ),
     price: Yup.number().required("Price is required"),
-    taxRate: Yup.number().required("Tax rate is required"),
+    taxRate: Yup.number()
+      .min(0, "Tax rate must be between 0 and 100")
+      .max(100, "Tax rate must be between 0 and 100")
+      .required("Tax rate is required"),
     count: Yup.number()
       .integer("Count must be integer value")
       .required("Count is required")

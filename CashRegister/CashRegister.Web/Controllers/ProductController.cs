@@ -61,5 +61,21 @@ namespace CashRegister.Web.Controllers
         {
             return Ok(_productRepository.GetAll().Any(product => product.Name == productToTest.Name));
         }
+
+        [HttpPost("change-amount")]
+
+        public IActionResult DecreaseCount(int amount, int id)
+        {
+            if (!_productRepository.DecreaseCount(amount, id)) return Forbid();
+
+            return Ok();
+        }
+
+        [HttpGet("get-by-name")]
+
+        public IActionResult GetByName(string name)
+        {
+            return Ok(_productRepository.GetByName(name));
+        }
     }
 }
