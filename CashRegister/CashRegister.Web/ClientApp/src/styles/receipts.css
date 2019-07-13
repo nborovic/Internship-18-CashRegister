@@ -1,0 +1,9 @@
+.receipts-list__receipt {
+  background: lightgrey;
+}
+
+.receipts-list__pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

@@ -19,7 +19,7 @@ namespace CashRegister.Domain.Repositories.Implementations
 
         public List<Product> GetAll() => _context.Products.Include(product => product.ProductsReceipts).ToList();
 
-        public Product GetById(int id) => _context.Products.Find(id);
+        public Product GetById(int id) => _context.Products.Include(product => product.ProductsReceipts).First(product => product.Id == id);
 
         public List<Product> GetByName(string name) {
             if (name == null) name = "";
@@ -50,9 +50,15 @@ namespace CashRegister.Domain.Repositories.Implementations
             return true;
         }
 
-        public bool NameExists(string name)
+        public bool IncreaseCount(int amount, int id)
         {
-            return _context.Products.Any(product => product.Name == name);
+            var product = _context.Products.Find(id);
+
+            if (product == null) return false;
+
+            product.Count += amount;
+            _context.SaveChanges();
+            return true;
         }
 
         public bool DecreaseCount(int amount, int id)
@@ -66,15 +72,9 @@ namespace CashRegister.Domain.Repositories.Implementations
             return true;
         }
 
-        public bool IncreaseCount(int amount, int id)
+        public bool NameExists(string name)
         {
-            var product = _context.Products.Find(id);
-
-            if (product == null) return false;
-
-            product.Count += amount;
-            _context.SaveChanges();
-            return true;
+            return _context.Products.Any(product => product.Name == name);
         }
     }
 }

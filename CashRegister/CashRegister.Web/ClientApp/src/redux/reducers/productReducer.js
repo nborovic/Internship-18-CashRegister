@@ -7,8 +7,8 @@ import {
 const initialState = {
   allItems: [],
   allItemsLoading: true,
-  itemsByName: [],
-  itemsByNameLoading: true,
+  filteredItems: [],
+  filteredItemsLoading: true,
   selectedItem: {
     id: 0,
     name: "",
@@ -35,8 +35,8 @@ export default function(state = initialState, action) {
     case GET_PRODUCTS_BY_NAME:
       return {
         ...state,
-        itemsByName: action.payload,
-        itemsByNameLoading: false
+        filteredItems: action.payload,
+        filteredItemsLoading: false
       };
     default:
       return state;

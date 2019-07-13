@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import printd from "printd";
-import lodash from "lodash";
 
 import { connect } from "react-redux";
 import {
@@ -11,27 +10,23 @@ import {
 } from "../../redux/actions/productActions";
 
 import ProductsList from "./ProductsList";
-import Basket from "./Basket";
-import BasketAdd from "./BasketAdd";
+import Receipt from "./Receipt";
+import ProductToReceipt from "./ProductToReceipt";
 
 import "../../styles/products.css";
 import { generateGuid, formatDate, empty } from "../utils";
-
-const debounce = require("lodash/debounce");
 
 class Products extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      basket: [],
-      selectedProduct: { id: null },
-      searchBy: "name",
-      searchValue: "",
-      displayBasketAdd: false,
-      basketCountValue: 0
+      receipt: [],
+      displayProductToReceiptWindow: false,
+      receiptCountValue: 0
     };
 
-    this.basket = React.createRef();
+    this.receipt = React.createRef();
+    this.countInput = React.createRef();
   }
 
   componentDidMount() {
@@ -42,144 +37,81 @@ class Products extends Component {
   }
 
   handleKeyPress = key => {
-    const indexOfSelectedProduct = this.props.productsByName.indexOf(
-      this.state.selectedProduct
-    );
-
-    const productBefore = this.props.productsByName[indexOfSelectedProduct - 1];
-    const productAfter = this.props.productsByName[indexOfSelectedProduct + 1];
-    let updatedBasket = JSON.parse(JSON.stringify(this.state.basket));
+    const { selectedProduct } = this.props;
+    const {
+      displayProductToReceiptWindow,
+      receiptCountValue,
+      receipt
+    } = this.state;
 
     switch (key.keyCode) {
-      case 38:
-        if (productBefore) this.setState({ selectedProduct: productBefore });
-        console.log(this.basket.current);
-        break;
-
-      case 40:
-        if (productAfter) this.setState({ selectedProduct: productAfter });
-        break;
-
-      case 27:
-        this.setState({ displayBasketAdd: false, basketCountValue: 0 });
+      case 8:
+        if (!displayProductToReceiptWindow) {
+          const updatedReceipt = receipt.filter(
+            product => selectedProduct.id !== product.id
+          );
+          this.setState({ receipt: updatedReceipt });
+        }
         break;
 
       case 13:
-        if (!this.state.displayBasketAdd) {
-          const basketProduct = this.state.basket.find(
-            product => product.id === this.state.selectedProduct.id
+        if (!displayProductToReceiptWindow) {
+          const receiptProduct = receipt.find(
+            product => product.id === selectedProduct.id
           );
 
           this.setState({
-            displayBasketAdd: true,
-            basketCountValue: basketProduct
-              ? basketProduct.count
-              : this.state.basketCountValue
+            displayProductToReceiptWindow: true,
+            receiptCountValue: receiptProduct
+              ? receiptProduct.count
+              : receiptCountValue
           });
-        } else this.handleAddProductToBasket();
+
+          this.countInput.current.focus();
+        } else this.handleAddProductToReceipt();
         break;
 
-      case 8:
-        if (!this.state.displayBasketAdd) {
-          updatedBasket = updatedBasket.filter(
-            product => this.state.selectedProduct.id !== product.id
-          );
-          this.setState({ basket: updatedBasket });
-        }
+      case 27:
+        this.setState({
+          displayProductToReceiptWindow: false,
+          receiptCountValue: 0
+        });
         break;
     }
   };
-
-  addProduct = () => {
-    axios.post("api/products/add", {
-      name: "hi",
-      barcode: "3fb18215-5726-4367-bb18-05a2931afe11",
-      price: 5.0,
-      taxRate: 4.0,
-      count: 21
-    });
-  };
-
-  handleSelect = product => {
-    if (this.state.basket.some(product => product.id === product)) {
-      const basketProduct = this.state.basket.find(
-        product => product.id === product.id
-      );
-
-      this.setState({
-        selectedProduct: product,
-        basketCountValue: basketProduct.count
-      });
-
-      this.setState({
-        selectedProduct: product
-      });
-    }
-
-    this.setState({ selectedProduct: product });
-  };
-
-  handleSearchMethodChange = event => {
-    this.setState({ searchBy: event.target.value });
-  };
-
-  handleSearchChange = debounce(searchValue => {
-    const products = this.props.allProducts;
-
-    if (searchValue.length < 3) {
-      if (products.length !== this.props.productsByName.length)
-        this.props.getProductsByName("");
-      return;
-    }
-
-    this.props.getProductsByName(searchValue).then(data => {
-      const { payload } = data;
-
-      const newSelected = payload.some(
-        product => product === this.state.selectedProduct
-      )
-        ? this.state.selectedProduct
-        : { id: -1 };
-
-      this.setState({
-        searchValue: searchValue,
-        selectedProduct: newSelected
-      });
-    });
-  }, 1000);
 
   handleCountInputChange = event => {
-    this.setState({ basketCountValue: event.target.value });
+    this.setState({ receiptCountValue: event.target.value });
   };
 
-  handleAddProductToBasket = () => {
-    const basketProduct = Object.assign({}, this.state.selectedProduct);
+  handleAddProductToReceipt = () => {
+    const receiptProduct = Object.assign({}, this.props.selectedProduct);
 
-    if (this.state.basketCountValue > basketProduct.count) return;
+    if (this.state.receiptCountValue > receiptProduct.count) return;
 
-    basketProduct.count = parseInt(this.state.basketCountValue);
+    receiptProduct.count = parseInt(this.state.receiptCountValue);
 
-    let basket = JSON.parse(JSON.stringify(this.state.basket));
+    let receipt = JSON.parse(JSON.stringify(this.state.receipt));
 
-    if (basket.some(product => product.id === basketProduct.id))
-      basket = basket.filter(product => product.id !== basketProduct.id);
+    if (receipt.some(product => product.id === receiptProduct.id))
+      receipt = receipt.filter(product => product.id !== receiptProduct.id);
 
-    basket.push(basketProduct);
+    receipt.push(receiptProduct);
 
     this.setState({
-      basket: basket,
-      displayBasketAdd: false,
-      basketCountValue: 0
+      receipt: receipt,
+      displayProductToReceiptWindow: false,
+      receiptCountValue: 0
     });
   };
 
-  calculatePrices = basket => {
+  calculatePrices = receipt => {
     let priceWithoutTax = 0;
     let priceWithTax = 0;
     let exciseDutyPrice = 0;
     let standardProductsPrice = 0;
 
-    basket.forEach(product => {
+    receipt.forEach(product => {
       priceWithoutTax += product.price * product.count;
       priceWithTax +=
         (product.price + (product.price * product.taxRate) / 100) *
@@ -205,22 +137,22 @@ class Products extends Component {
   };
 
   handlePayment = () => {
-    const basket = this.state.basket;
+    const receipt = this.state.receipt;
 
-    if (empty(basket)) return;
+    if (empty(receipt)) return;
 
     const receiptId = generateGuid();
 
-    const productReceipts = basket.map(product => ({
+    const productReceipts = receipt.map(product => ({
       productId: product.id,
       receiptId: receiptId
     }));
 
     const dateNow = new Date();
 
-    const prices = this.calculatePrices(basket);
+    const prices = this.calculatePrices(receipt);
 
-    const receipt = {
+    const receiptToAdd = {
       id: receiptId,
       date: formatDate(dateNow),
       productsReceipts: productReceipts,
@@ -230,12 +162,14 @@ class Products extends Component {
       standardProductsPrice: prices.standardProductsPrice
     };
 
-    axios.post("api/receipts/add", receipt).then(res => console.log(res.data));
+    axios
+      .post("api/receipts/add", receiptToAdd)
+      .then(res => console.log(res.data));
 
     const receiptt = new printd();
-    receiptt.print(this.basket.current);
+    receiptt.print(this.receipt.current);
 
-    this.setState({ basket: [] });
+    this.setState({ receipt: [] });
   };
 
   render() {
@@ -243,41 +177,31 @@ class Products extends Component {
       <div>
         <main>
           <div className="products-wrapper">
-            <ProductsList
-              products={this.props.productsByName}
-              productsLoading={this.props.productsByNameLoading}
-              selectedProduct={this.state.selectedProduct}
-              selectHandler={this.handleSelect}
-              searchChangeHandler={this.handleSearchChange}
-              searchMethodChangeHandler={this.handleSearchMethodChange}
-            />
-            <Basket
-              basket={this.state.basket}
+            <ProductsList />
+            <Receipt
+              receipt={this.state.receipt}
               paymentHandler={this.handlePayment}
               calculatePrices={this.calculatePrices}
-              ref={this.basket}
+              ref={this.receipt}
             />
-            <BasketAdd
-              display={this.state.displayBasketAdd}
-              product={this.state.selectedProduct}
-              addProductToBasketHandler={this.handleAddProductToBasket}
+
+            <ProductToReceipt
+              display={this.state.displayProductToReceiptWindow}
+              product={this.props.selectedProduct}
+              addProductToreceiptHandler={this.handleAddProductToreceipt}
               countInputChangeHandler={this.handleCountInputChange}
-              basketCountValue={this.state.basketCountValue}
+              receiptCountValue={this.state.receiptCountValue}
+              ref={this.countInput}
             />
           </div>
         </main>
-        <Link to="products/add">Add</Link>
-        <Link to={`products/edit/${this.state.selectedProduct.id}`}>Edit</Link>
       </div>
     );
   }
 }
 
 const mapStateToProps = state => ({
-  allProducts: state.products.allItems,
-  allProductsLoading: state.products.allItemsLoading,
-  productsByName: state.products.itemsByName,
-  productsByNameLoading: state.products.itemsByNameLoading
+  selectedProduct: state.products.selectedItem
 });
 
 const mapDispatchToProps = {

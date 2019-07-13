@@ -28,30 +28,43 @@ namespace CashRegister.Web.Controllers
             return Ok(_receiptRepository.GetAll());
         }
 
-        [HttpGet("sliced")]
+        [HttpGet("get-by-id")]
+
+        public IActionResult GetById(Guid id)
+        {
+            var receipt = _receiptRepository.GetById(id);
+
+            if (receipt == null)
+                return NotFound();
+
+            return Ok(receipt);
+        }
+
+        [HttpGet("get-sliced")]
 
         public IActionResult GetSliced(int amount, int beginningIndex, string dateAsString)
         {
-            if (dateAsString != null)
-            {
-                var date = DateTime.Parse(dateAsString);
-                var receiptsByDate = _receiptRepository.GetByDate(date);
-
-                var response = new
-                {
-                    Data = _receiptRepository.GetSliced(amount, beginningIndex, date),
-                    Page = receiptsByDate.Count != 0 ? (beginningIndex + amount) / amount : 0,
-                    TotalPages = (receiptsByDate.Count + amount - 1) / amount
-                };
-
-                return Ok(response);
-            } else
+            if (dateAsString == null)
             {
                 var response = new
                 {
                     Data = _receiptRepository.GetSliced(amount, beginningIndex),
                     Page = (beginningIndex + amount) / amount,
                     TotalPages = (_receiptRepository.GetAll().Count + amount - 1) / amount
+                };
+
+                return Ok(response);
+            }
+            else
+            {
+                var date = DateTime.Parse(dateAsString);
+                var receiptsByDate = _receiptRepository.GetByDate(date);
+
+                var response = new
+                {
+                    Data = _receiptRepository.GetSlicedByDate(amount, beginningIndex, date),
+                    Page = receiptsByDate.Count != 0 ? (beginningIndex + amount) / amount : 0,
+                    TotalPages = (receiptsByDate.Count + amount - 1) / amount
                 };
 
                 return Ok(response);
@@ -66,18 +79,6 @@ namespace CashRegister.Web.Controllers
                 return Forbid();
 
             return Ok(_receiptRepository.GetById(receiptToAdd.Id));
-        }
-
-        [HttpGet("get-by-id")]
-
-        public IActionResult GetById(Guid id)
-        {
-            var receipt = _receiptRepository.GetById(id);
-
-            if (receipt == null)
-                return NotFound();
-
-            return Ok(receipt);
         }
     }
 }

@@ -1,11 +1,11 @@
 import React, { Component } from "react";
-import axios from "axios";
 import { connect } from "react-redux";
 import {
   getSlicedReceipts,
   getReceiptsByDate
 } from "../../redux/actions/receiptActions";
 import { formatDate } from "../utils";
+import "../../styles/receipts.css";
 
 import ReceiptsList from "./ReceiptsList";
 
@@ -44,10 +44,10 @@ class Receipts extends Component {
         this.props.page * receiptsPerPage - receiptsPerPage * 2
       );
     else
-      this.props.getSlicedReceipts(
+      this.props.getReceiptsByDate(
         receiptsPerPage,
         this.props.page * receiptsPerPage - receiptsPerPage * 2,
-        this.props.dateInputValue
+        this.state.dateInputValue
       );
   };
 
@@ -60,10 +60,10 @@ class Receipts extends Component {
         this.props.page * receiptsPerPage
       );
     else
-      this.props.getSlicedReceipts(
+      this.props.getReceiptsByDate(
         receiptsPerPage,
         this.props.page * receiptsPerPage,
-        this.props.dateInputValue
+        this.state.dateInputValue
       );
   };
 

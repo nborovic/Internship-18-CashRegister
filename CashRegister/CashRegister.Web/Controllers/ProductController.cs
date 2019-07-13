@@ -27,6 +27,23 @@ namespace CashRegister.Web.Controllers
             return Ok(_productRepository.GetAll());
         }
 
+        [HttpGet("get-by-id/{id}")]
+
+        public IActionResult GetById(int id)
+        {
+            var product = _productRepository.GetById(id);
+
+            if (product == null) return NotFound();
+            return Ok(product);
+        }
+
+        [HttpGet("get-by-name")]
+
+        public IActionResult GetByName(string name)
+        {
+            return Ok(_productRepository.GetByName(name));
+        }
+
         [HttpPost("add")]
 
         public IActionResult Add(Product productToAdd)
@@ -45,23 +62,6 @@ namespace CashRegister.Web.Controllers
             return Ok();
         }
 
-        [HttpGet("get-by-id/{id}")]
-
-        public IActionResult GetById(int id)
-        {
-            var product = _productRepository.GetById(id);
-
-            if (product == null) return NotFound();
-            return Ok(product);
-        }
-
-        [HttpPost("name-exists")]
-
-        public IActionResult NameExists(Product productToTest)
-        {
-            return Ok(_productRepository.GetAll().Any(product => product.Name == productToTest.Name));
-        }
-
         [HttpPost("change-amount")]
 
         public IActionResult DecreaseCount(int amount, int id)
@@ -71,11 +71,11 @@ namespace CashRegister.Web.Controllers
             return Ok();
         }
 
-        [HttpGet("get-by-name")]
+        [HttpPost("name-exists")]
 
-        public IActionResult GetByName(string name)
+        public IActionResult NameExists(Product productToTest)
         {
-            return Ok(_productRepository.GetByName(name));
+            return Ok(_productRepository.GetAll().Any(product => product.Name == productToTest.Name));
         }
     }
 }

@@ -1,4 +1,6 @@
-import printd from "printd";
+import lodash from "lodash";
+
+export const debounce = require("lodash/debounce");
 
 export const validateGuid = require("uuid-validate");
 

@@ -1,6 +1,6 @@
 import React from "react";
 
-const BasketAdd = props => (
+const ProductToReceipt = React.forwardRef((props, ref) => (
   <div
     className={`products__basket-add ${
       props.display ? "products__basket-add--open" : ""
@@ -12,13 +12,14 @@ const BasketAdd = props => (
       type="number"
       name="count"
       placeholder="Count"
-      value={props.basketCountValue}
+      value={props.receiptCountValue}
       onChange={e => props.countInputChangeHandler(e)}
+      ref={ref}
     />
-    <button type="submit" onClick={e => props.addProductToBasketHandler(e)}>
+    <button type="submit" onClick={e => props.addProductToReceiptHandler(e)}>
       Submit
     </button>
   </div>
-);
+));
 
-export default BasketAdd;
+export default ProductToReceipt;

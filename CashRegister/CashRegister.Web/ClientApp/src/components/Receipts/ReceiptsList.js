@@ -14,11 +14,13 @@ const ReceiptsList = props => (
         </div>
       ))
     )}
-    <button onClick={e => props.pageDecrementHandler()}>Before</button>
-    <p>
-      {props.page} / {props.totalPages}
-    </p>
-    <button onClick={e => props.pageIncrementHandler()}>Next</button>
+    <div className="receipts-list__pagination">
+      <button onClick={e => props.pageDecrementHandler()}>Before</button>
+      <p>
+        {props.page} / {props.totalPages}
+      </p>
+      <button onClick={e => props.pageIncrementHandler()}>Next</button>
+    </div>
   </div>
 );
 
