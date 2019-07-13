@@ -1,7 +1,7 @@
 import {
   GET_ALL_PRODUCTS,
   GET_PRODUCT_BY_ID,
-  GET_PRODUCTS_BY_NAME
+  GET_FILTERED_PRODUCTS
 } from "../actions/types";
 
 const initialState = {
@@ -32,7 +32,7 @@ export default function(state = initialState, action) {
         ...state,
         selectedItem: action.payload
       };
-    case GET_PRODUCTS_BY_NAME:
+    case GET_FILTERED_PRODUCTS:
       return {
         ...state,
         filteredItems: action.payload,

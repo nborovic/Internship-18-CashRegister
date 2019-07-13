@@ -44,6 +44,13 @@ namespace CashRegister.Web.Controllers
             return Ok(_productRepository.GetByName(name));
         }
 
+        [HttpGet("get-by-barcode")]
+
+        public IActionResult GetByBarcode(string barcode)
+        {
+            return Ok(_productRepository.GetByBarcode(barcode));
+        }
+
         [HttpPost("add")]
 
         public IActionResult Add(Product productToAdd)

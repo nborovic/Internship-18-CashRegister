@@ -9,7 +9,7 @@ import "../../styles/receipts.css";
 
 import ReceiptsList from "./ReceiptsList";
 
-const receiptsPerPage = 2;
+const receiptsPerPage = 5;
 const undefinedDateInput = "NaN-NaN-NaN NaN:NaN:NaN";
 class Receipts extends Component {
   constructor(props) {

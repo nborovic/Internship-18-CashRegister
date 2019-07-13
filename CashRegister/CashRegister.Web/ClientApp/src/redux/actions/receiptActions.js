@@ -6,7 +6,6 @@ import {
 import axios from "axios";
 
 export const getAllReceipts = () => dispatch => {
-  console.log("je");
   axios
     .get("api/receipts/all")
     .then(res => dispatch({ type: GET_ALL_RECEIPTS, payload: res.data }));
@@ -19,7 +18,6 @@ export const getReceiptById = id => dispatch => {
 };
 
 export const getSlicedReceipts = (amount, beginningIndex) => dispatch => {
-  console.log("all");
   axios
     .get(
       `api/receipts/get-sliced?amount=${amount}&beginningIndex=${beginningIndex}`

@@ -72,7 +72,7 @@ namespace CashRegister.Web.Controllers
             if (!_receiptRepository.Add(receiptToAdd))
                 return Forbid();
 
-            return Ok(_receiptRepository.GetById(receiptToAdd.Id));
+            return Ok();
         }
     }
 }

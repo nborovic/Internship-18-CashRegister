@@ -6,15 +6,17 @@ import Products from "./components/Products/Products";
 import EditProduct from "./components/Products/EditProduct";
 import AddProduct from "./components/Products/AddProduct";
 import Receipts from "./components/Receipts/Receipts";
-import ProductsList from "./components/Products/ProductsList";
 import ImportProducts from "./components/Products/ImportProducts";
 import Login from "./components/Login/Login";
 
-import "./styles/common.css";
-
 const App = () => (
   <React.Fragment>
-    <Route exact path="/" component={Home} />
+    {localStorage.getItem("user") ? (
+      <Route exact path="/" component={Home} />
+    ) : (
+      <Route exact path="/" component={Login} />
+    )}
+
     <Route exact path="/products" component={Products} />
     <Route exact path="/products/add" component={AddProduct} />
     <Route
@@ -23,9 +25,7 @@ const App = () => (
       render={props => <EditProduct {...props} />}
     />
     <Route exact path="/receipts" component={Receipts} />
-    <Route exact path="/products-list" component={ProductsList} />
-    <Route exact path="/import-products" component={ImportProducts} />
-    <Route exact path="/login" component={Login} />
+    <Route exact path="/products/import" component={ImportProducts} />
   </React.Fragment>
 );
 

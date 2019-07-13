@@ -2,6 +2,7 @@ import React from "react";
 import { withFormik, Form, Field } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
+import "../../styles/products.css";
 
 import { validateGuid, generateGuid } from "../utils";
 
@@ -12,7 +13,7 @@ const AddProduct = ({
   isSubmitting,
   setFieldValue
 }) => (
-  <Form>
+  <Form className="product__edit-form">
     <Field type="text" name="name" placeholder="Name" />
     {touched.name && errors.name && <p>{errors.name}</p>}
     <label className="edit-form__label" htmlFor="barcode">

@@ -23,8 +23,8 @@ class Login extends Component {
         registerId: registerIdInputValue
       })
       .then(res => {
-        console.log(res.data);
         localStorage.setItem("user", res.data.cashierId);
+        this.props.history.push("/");
       })
       .catch(err => {
         console.log(err);

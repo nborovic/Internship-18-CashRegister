@@ -26,11 +26,22 @@ namespace CashRegister.Domain.Repositories.Implementations
             return _context.Products.Include(product => product.ProductsReceipts).Where(product => product.Name.ToLower().Contains(name.ToLower())).ToList();
         }
 
+        public List<Product> GetByBarcode(string barcode)
+        {
+            if (barcode == null) barcode = "";
+            return _context.Products.Include(product => product.ProductsReceipts).Where(product => product.Barcode.ToString().ToLower().Contains(barcode.ToLower())).ToList();
+        }
+
         public bool Add(Product productToAdd)
         {
             var productExists = _context.Products.Any(product => product.Equals(productToAdd));
 
             if (productExists) return false;
+
+            if (productToAdd.Barcode.GetType() != typeof(Guid) || productToAdd.Price.GetType() != typeof(float)
+                || productToAdd.TaxRate > 100 || productToAdd.TaxRate < 0 || productToAdd.Name.Length > 45 || productToAdd.Name.Length < 2
+                || productToAdd.Count.GetType() != typeof(int)) return false;
+
 
             _context.Products.Add(productToAdd);
             _context.SaveChanges();
@@ -42,6 +53,8 @@ namespace CashRegister.Domain.Repositories.Implementations
             var productToEdit = _context.Products.Find(editedProduct.Id);
 
             if (productToEdit == null || productToEdit.Name != editedProduct.Name || productToEdit.Count != editedProduct.Count) return false;
+
+            if (productToEdit.Barcode.GetType() != typeof(Guid) || productToEdit.Price.GetType() != typeof(float) || productToEdit.TaxRate > 100 || productToEdit.TaxRate < 0) return false;
 
             productToEdit.Price = editedProduct.Price;
             productToEdit.TaxRate = editedProduct.TaxRate;

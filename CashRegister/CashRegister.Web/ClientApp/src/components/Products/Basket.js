@@ -1,12 +1,11 @@
 import React from "react";
 import { empty } from "../utils";
 
-const Basket = React.forwardRef((props, ref) => {
+const Basket = props => {
   const { basket } = props;
 
   return (
-    <div className="basket" ref={ref}>
-      <h2 className="basket__title">Basket</h2>
+    <React.Fragment>
       {empty(basket) ? (
         <p>No results</p>
       ) : (
@@ -19,8 +18,8 @@ const Basket = React.forwardRef((props, ref) => {
           </div>
         ))
       )}
-    </div>
+    </React.Fragment>
   );
-});
+};
 
 export default Basket;

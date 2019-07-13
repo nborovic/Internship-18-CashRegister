@@ -99,7 +99,9 @@ class ImportProducts extends Component {
 
     if (empty(basket)) return;
 
-    Axios.post("api/products/import", basket);
+    Axios.post("api/products/import-export", basket);
+
+    this.setState({ basket: [] });
   };
 
   render() {

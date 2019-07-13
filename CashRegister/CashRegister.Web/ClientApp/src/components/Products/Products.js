@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
 import printd from "printd";
 
@@ -18,7 +17,8 @@ class Products extends Component {
     this.state = {
       basket: [],
       displayProductToBasketWindow: false,
-      basketCountValue: 0
+      basketCountValue: 0,
+      dateOfIssue: formatDate(new Date())
     };
 
     this.basket = React.createRef();
@@ -102,7 +102,9 @@ class Products extends Component {
     });
   };
 
-  calculatePrices = basket => {
+  calculatePrices = () => {
+    const { basket } = this.state;
+
     let priceWithoutTax = 0;
     let priceWithTax = 0;
     let exciseDutyPrice = 0;
@@ -141,20 +143,22 @@ class Products extends Component {
 
     if (empty(basket)) return;
 
-    const basketId = generateGuid();
+    const receiptId = generateGuid();
 
     const productBaskets = basket.map(product => ({
       productId: product.id,
-      basketId: basketId
+      receiptId: receiptId,
+      count: product.count
     }));
 
     const dateNow = new Date();
 
-    const prices = this.calculatePrices(basket);
+    const prices = this.calculatePrices();
 
     const receiptToAdd = {
-      id: basketId,
+      id: receiptId,
       date: formatDate(dateNow),
+      cashierId: localStorage.getItem("user"),
       productsBaskets: productBaskets,
       priceWithoutTax: prices.priceWithoutTax,
       priceWithTax: prices.priceWithTax,
@@ -162,11 +166,12 @@ class Products extends Component {
       standardProductsPrice: prices.standardProductsPrice
     };
 
-    axios.post("api/products/import-export", basketToExport);
-
     axios
       .post("api/receipts/add", receiptToAdd)
-      .then(res => console.log(res.data));
+      .then(() => axios.post("api/products/import-export", basketToExport))
+      .catch(err => alert(err));
+
+    this.setState({ dateOfIssue: formatDate(new Date()) });
 
     const receipt = new printd();
     receipt.print(this.basket.current);
@@ -175,13 +180,30 @@ class Products extends Component {
   };
 
   render() {
+    const prices = this.calculatePrices();
+
     return (
       <div>
         <main>
           <div className="products-wrapper">
             <ProductsList />
-            <Basket basket={this.state.basket} ref={this.basket} />
 
+            <div className="basket">
+              <h2>Basket</h2>
+              <div ref={this.basket}>
+                <Basket basket={this.state.basket} />
+                <p>
+                  Cashier: {this.props.cashier.firstName}{" "}
+                  {this.props.cashier.lastName}
+                </p>
+                <p>Date of issue: {this.state.dateOfIssue}</p>
+                <p>Price with tax: {prices.priceWithTax}kn</p>
+                <p>Price without tax: {prices.priceWithoutTax}kn</p>
+                <p>Standard products price: {prices.standardProductsPrice}kn</p>
+                <p>Excise duty price: {prices.exciseDutyPrice}kn</p>
+              </div>
+              <button onClick={e => this.handlePayment()}>Checkout</button>
+            </div>
             <ProductToBasket
               display={this.state.displayProductToBasketWindow}
               product={this.props.selectedProduct}
@@ -190,7 +212,6 @@ class Products extends Component {
               basketCountValue={this.state.basketCountValue}
               ref={this.countInput}
             />
-            <button onClick={e => this.handlePayment()}>Checkout</button>
           </div>
         </main>
       </div>
@@ -199,7 +220,8 @@ class Products extends Component {
 }
 
 const mapStateToProps = state => ({
-  selectedProduct: state.products.selectedItem
+  selectedProduct: state.products.selectedItem,
+  cashier: state.cashiers.selectedItem
 });
 
 export default connect(

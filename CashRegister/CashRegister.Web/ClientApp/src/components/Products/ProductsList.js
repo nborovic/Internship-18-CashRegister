@@ -4,17 +4,18 @@ import { connect } from "react-redux";
 import {
   getAllProducts,
   getProductsByName,
-  getProductById
+  getProductById,
+  getProductsByBarcode
 } from "../../redux/actions/productActions";
 import { debounce } from "../utils";
+import { Link } from "react-router-dom";
 
 class ProductsList extends Component {
   constructor(props) {
     super(props);
     this.state = {
       searchInputValue: "",
-      searchByName: true,
-      searchByBarcode: false
+      searchBy: "name"
     };
   }
 
@@ -55,16 +56,20 @@ class ProductsList extends Component {
     const {
       allProducts,
       filteredProducts,
-      selectedProduct,
-      getProductsByName
+      getProductsByName,
+      getProductsByBarcode
     } = this.props;
 
     if (searchValue.length < 3) {
-      if (allProducts.length !== filteredProducts.length) getProductsByName("");
+      if (allProducts.length !== filteredProducts.length)
+        this.state.searchBy === "name"
+          ? getProductsByName("")
+          : getProductsByBarcode("");
       return;
     }
 
-    getProductsByName(searchValue);
+    if (this.state.searchBy === "name") getProductsByName(searchValue);
+    else getProductsByBarcode(searchValue);
 
     this.setState({
       searchValue: searchValue
@@ -110,12 +115,17 @@ class ProductsList extends Component {
               }`}
             >
               <p>
-                {product.id} | {product.name} | {product.price}
+                {product.id} | {product.name} | {product.price}kn |{" "}
+                {product.taxRate}% | {product.barcode}
               </p>
             </div>
           ))
         )}
         {empty(filteredProducts) ? <p>No results</p> : null}
+        <Link to="/products/add">Add</Link>
+        {selectedProduct.id === 0 ? null : (
+          <Link to={`/products/edit/${selectedProduct.id}`}>Edit</Link>
+        )}
       </div>
     );
   }
@@ -131,7 +141,8 @@ const mapStateToProps = state => ({
 const mapDispatchTopProps = {
   getAllProducts,
   getProductsByName,
-  getProductById
+  getProductById,
+  getProductsByBarcode
 };
 
 export default connect(

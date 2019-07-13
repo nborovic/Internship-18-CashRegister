@@ -8,6 +8,7 @@ namespace CashRegister.Data.Entities.Models
     {
         public Guid Id { get; set; }
         public DateTime Date { get; set; }
+        public int CashierId { get; set; }
         public Cashier Cashier { get; set; }
         public ICollection<ProductReceipt> ProductsReceipts { get; set; }
         public float PriceWithoutTax { get; set; }

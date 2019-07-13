@@ -10,6 +10,6 @@ namespace CashRegister.Data.Entities.Models
         public Product Product { get; set; }
         public Guid ReceiptId { get; set; }
         public Receipt Receipt { get; set; }
-  
+        public int Count { get; set; }
     }
 }

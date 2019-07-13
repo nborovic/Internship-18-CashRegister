@@ -17,6 +17,7 @@ const EditProduct = ({
   isSubmitting,
   setFieldValue
 }) => {
+  document.onkeydown = null;
   return (
     <Form className="products__edit-form">
       <label className="edit-form__label" htmlFor="name">
@@ -100,7 +101,7 @@ const EditProduct = ({
 };
 
 const mapStateToProps = state => ({
-  product: state.product.selectedItem
+  product: state.products.selectedItem
 });
 
 const mapDispatchToProps = {

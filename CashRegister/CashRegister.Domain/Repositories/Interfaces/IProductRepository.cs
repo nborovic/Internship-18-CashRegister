@@ -9,6 +9,7 @@ namespace CashRegister.Domain.Repositories.Interfaces
         List<Product> GetAll();
         Product GetById(int id);
         List<Product> GetByName(string name);
+        List<Product> GetByBarcode(string barcode);
         bool Add(Product productToAdd);
         bool Edit(Product editedProduct);
         bool ImportExport(List<Product> productsList);
