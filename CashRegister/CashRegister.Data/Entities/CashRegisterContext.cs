@@ -75,7 +75,23 @@ namespace CashRegister.Data.Entities
                 new CashierRegister { CashierId = 1, RegisterId = 4 },
                 new CashierRegister { CashierId = 2, RegisterId = 2 },
                 new CashierRegister { CashierId = 2, RegisterId = 1 }
+            );
 
+            modelBuilder.Entity<Product>().HasData(
+                new Product { Id = 1, Name = "Coca Cola", Price = 6, TaxRate = 5, Barcode = new Guid(), Count = 26 },
+                new Product { Id = 2, Name = "Kruh", Price = 3, TaxRate = 5, Barcode = new Guid(), Count = 101 },
+                new Product { Id = 3, Name = "Pringles", Price = 15, TaxRate = 25, Barcode = new Guid(), Count = 59 }
+            );
+
+            modelBuilder.Entity<Receipt>().HasData(
+                new Receipt { Id = new Guid("3178fa30-d8a9-4b10-9e98-4b060ba82769"), CashierId = 1, Date = DateTime.Now, ExciseDutyPrice = 15, PriceWithoutTax = 8, PriceWithTax = 22, StandardProductsPrice = 7 },
+                new Receipt { Id = new Guid("4228fa30-d8a9-4b10-9e98-4b060ba82769"), CashierId = 1, Date = DateTime.Now, ExciseDutyPrice = 15, PriceWithoutTax = 8, PriceWithTax = 22, StandardProductsPrice = 7 }
+            );
+
+            modelBuilder.Entity<ProductReceipt>().HasData(
+                new ProductReceipt { ProductId = 3, ReceiptId = new Guid("3178fa30-d8a9-4b10-9e98-4b060ba82769"), Count = 15},
+                new ProductReceipt { ProductId = 2, ReceiptId = new Guid("4228fa30-d8a9-4b10-9e98-4b060ba82769"), Count = 16},
+                new ProductReceipt { ProductId = 1, ReceiptId = new Guid("4228fa30-d8a9-4b10-9e98-4b060ba82769"), Count = 5}
             );
         }
     }
