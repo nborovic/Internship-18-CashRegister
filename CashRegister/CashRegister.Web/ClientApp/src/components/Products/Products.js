@@ -4,14 +4,10 @@ import axios from "axios";
 import printd from "printd";
 
 import { connect } from "react-redux";
-import {
-  getAllProducts,
-  getProductsByName
-} from "../../redux/actions/productActions";
 
 import ProductsList from "./ProductsList";
-import Receipt from "./Receipt";
-import ProductToReceipt from "./ProductToReceipt";
+import Basket from "./Basket";
+import ProductToBasket from "./ProductToBasket";
 
 import "../../styles/products.css";
 import { generateGuid, formatDate, empty } from "../utils";
@@ -20,98 +16,99 @@ class Products extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      receipt: [],
-      displayProductToReceiptWindow: false,
-      receiptCountValue: 0
+      basket: [],
+      displayProductToBasketWindow: false,
+      basketCountValue: 0
     };
 
-    this.receipt = React.createRef();
+    this.basket = React.createRef();
     this.countInput = React.createRef();
   }
 
   componentDidMount() {
-    this.props.getAllProducts();
-    this.props.getProductsByName("");
-
     document.onkeydown = this.handleKeyPress;
   }
 
   handleKeyPress = key => {
     const { selectedProduct } = this.props;
     const {
-      displayProductToReceiptWindow,
-      receiptCountValue,
-      receipt
+      displayProductToBasketWindow,
+      basketCountValue,
+      basket
     } = this.state;
 
     switch (key.keyCode) {
       case 8:
-        if (!displayProductToReceiptWindow) {
-          const updatedReceipt = receipt.filter(
+        if (!displayProductToBasketWindow) {
+          const updatedBasket = basket.filter(
             product => selectedProduct.id !== product.id
           );
-          this.setState({ receipt: updatedReceipt });
+          this.setState({ basket: updatedBasket });
         }
         break;
 
       case 13:
-        if (!displayProductToReceiptWindow) {
-          const receiptProduct = receipt.find(
+        if (!displayProductToBasketWindow) {
+          const basketProduct = basket.find(
             product => product.id === selectedProduct.id
           );
 
           this.setState({
-            displayProductToReceiptWindow: true,
-            receiptCountValue: receiptProduct
-              ? receiptProduct.count
-              : receiptCountValue
+            displayProductToBasketWindow: true,
+            basketCountValue: basketProduct
+              ? basketProduct.count
+              : basketCountValue
           });
 
           this.countInput.current.focus();
-        } else this.handleAddProductToReceipt();
+        } else this.handleAddProductToBasket();
         break;
 
       case 27:
         this.setState({
-          displayProductToReceiptWindow: false,
-          receiptCountValue: 0
+          displayProductToBasketWindow: false,
+          basketCountValue: 0
         });
         break;
     }
   };
 
   handleCountInputChange = event => {
-    this.setState({ receiptCountValue: event.target.value });
+    this.setState({ basketCountValue: event.target.value });
   };
 
-  handleAddProductToReceipt = () => {
-    const receiptProduct = Object.assign({}, this.props.selectedProduct);
+  handleAddProductToBasket = () => {
+    const { selectedProduct } = this.props;
+    const { basket, basketCountValue } = this.state;
 
-    if (this.state.receiptCountValue > receiptProduct.count) return;
+    const basketProduct = Object.assign({}, selectedProduct);
+    let updatedBasket = JSON.parse(JSON.stringify(basket));
 
-    receiptProduct.count = parseInt(this.state.receiptCountValue);
+    if (basketCountValue > basketProduct.count) return;
 
-    let receipt = JSON.parse(JSON.stringify(this.state.receipt));
+    basketProduct.count = parseInt(basketCountValue);
 
-    if (receipt.some(product => product.id === receiptProduct.id))
-      receipt = receipt.filter(product => product.id !== receiptProduct.id);
+    if (updatedBasket.some(product => product.id === basketProduct.id))
+      updatedBasket = updatedBasket.filter(
+        product => product.id !== basketProduct.id
+      );
 
-    receipt.push(receiptProduct);
+    updatedBasket.push(basketProduct);
 
     this.setState({
-      receipt: receipt,
-      displayProductToReceiptWindow: false,
-      receiptCountValue: 0
+      basket: updatedBasket,
+      displayProductToBasketWindow: false,
+      basketCountValue: 0
     });
   };
 
-  calculatePrices = receipt => {
+  calculatePrices = basket => {
     let priceWithoutTax = 0;
     let priceWithTax = 0;
     let exciseDutyPrice = 0;
     let standardProductsPrice = 0;
 
-    receipt.forEach(product => {
+    basket.forEach(product => {
       priceWithoutTax += product.price * product.count;
       priceWithTax +=
         (product.price + (product.price * product.taxRate) / 100) *
@@ -137,39 +134,44 @@ class Products extends Component {
   };
 
   handlePayment = () => {
-    const receipt = this.state.receipt;
+    const { basket } = this.state;
 
-    if (empty(receipt)) return;
+    const basketToExport = JSON.parse(JSON.stringify(basket));
+    basketToExport.map(product => (product.count = -product.count));
 
-    const receiptId = generateGuid();
+    if (empty(basket)) return;
 
-    const productReceipts = receipt.map(product => ({
+    const basketId = generateGuid();
+
+    const productBaskets = basket.map(product => ({
       productId: product.id,
-      receiptId: receiptId
+      basketId: basketId
     }));
 
     const dateNow = new Date();
 
-    const prices = this.calculatePrices(receipt);
+    const prices = this.calculatePrices(basket);
 
     const receiptToAdd = {
-      id: receiptId,
+      id: basketId,
       date: formatDate(dateNow),
-      productsReceipts: productReceipts,
+      productsBaskets: productBaskets,
       priceWithoutTax: prices.priceWithoutTax,
       priceWithTax: prices.priceWithTax,
       exciseDutyPrice: prices.exciseDutyPrice,
       standardProductsPrice: prices.standardProductsPrice
     };
 
+    axios.post("api/products/import-export", basketToExport);
+
     axios
       .post("api/receipts/add", receiptToAdd)
       .then(res => console.log(res.data));
 
-    const receiptt = new printd();
-    receiptt.print(this.receipt.current);
+    const receipt = new printd();
+    receipt.print(this.basket.current);
 
-    this.setState({ receipt: [] });
+    this.setState({ basket: [] });
   };
 
   render() {
@@ -178,21 +180,17 @@ class Products extends Component {
         <main>
           <div className="products-wrapper">
             <ProductsList />
-            <Receipt
-              receipt={this.state.receipt}
-              paymentHandler={this.handlePayment}
-              calculatePrices={this.calculatePrices}
-              ref={this.receipt}
-            />
+            <Basket basket={this.state.basket} ref={this.basket} />
 
-            <ProductToReceipt
-              display={this.state.displayProductToReceiptWindow}
+            <ProductToBasket
+              display={this.state.displayProductToBasketWindow}
               product={this.props.selectedProduct}
-              addProductToreceiptHandler={this.handleAddProductToreceipt}
+              addProductTobasketHandler={this.handleAddProductTobasket}
               countInputChangeHandler={this.handleCountInputChange}
-              receiptCountValue={this.state.receiptCountValue}
+              basketCountValue={this.state.basketCountValue}
               ref={this.countInput}
             />
+            <button onClick={e => this.handlePayment()}>Checkout</button>
           </div>
         </main>
       </div>
@@ -204,12 +202,7 @@ const mapStateToProps = state => ({
   selectedProduct: state.products.selectedItem
 });
 
-const mapDispatchToProps = {
-  getAllProducts,
-  getProductsByName
-};
-
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  {}
 )(Products);

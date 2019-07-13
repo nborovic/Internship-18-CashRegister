@@ -50,15 +50,24 @@ namespace CashRegister.Domain.Repositories.Implementations
             return true;
         }
 
-        public bool IncreaseCount(int amount, int id)
+        public bool ImportExport(List<Product> basket)
         {
-            var product = _context.Products.Find(id);
+            var response = true;
 
-            if (product == null) return false;
+            basket.ForEach(product =>
+            {
+                var productToEdit = _context.Products.Find(product.Id);
+                if (productToEdit.Count + product.Count < 0)                
+                    response = false;
 
-            product.Count += amount;
-            _context.SaveChanges();
-            return true;
+
+                productToEdit.Count += product.Count;
+            });
+
+            if (response)
+                _context.SaveChanges();
+
+            return response;
         }
 
         public bool DecreaseCount(int amount, int id)

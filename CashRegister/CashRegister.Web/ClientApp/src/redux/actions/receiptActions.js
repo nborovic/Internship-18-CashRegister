@@ -1,7 +1,6 @@
 import {
   GET_ALL_RECEIPTS,
   GET_RECEIPT_BY_ID,
-  GET_RECEIPTS_BY_DATE,
   GET_SLICED_RECEIPTS
 } from "./types";
 import axios from "axios";

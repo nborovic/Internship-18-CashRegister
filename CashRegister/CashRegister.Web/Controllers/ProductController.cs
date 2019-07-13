@@ -62,11 +62,11 @@ namespace CashRegister.Web.Controllers
             return Ok();
         }
 
-        [HttpPost("change-amount")]
+        [HttpPost("import-export")]
 
-        public IActionResult DecreaseCount(int amount, int id)
+        public IActionResult ImportExport(List<Product> productsList)
         {
-            if (!_productRepository.DecreaseCount(amount, id)) return Forbid();
+            if (!_productRepository.ImportExport(productsList)) return Forbid();
 
             return Ok();
         }

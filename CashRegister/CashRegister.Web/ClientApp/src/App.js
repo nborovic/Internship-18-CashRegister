@@ -7,6 +7,7 @@ import EditProduct from "./components/Products/EditProduct";
 import AddProduct from "./components/Products/AddProduct";
 import Receipts from "./components/Receipts/Receipts";
 import ProductsList from "./components/Products/ProductsList";
+import ImportProducts from "./components/Products/ImportProducts";
 
 import "./styles/common.css";
 
@@ -22,6 +23,7 @@ const App = () => (
     />
     <Route exact path="/receipts" component={Receipts} />
     <Route exact path="/products-list" component={ProductsList} />
+    <Route exact path="/import-products" component={ImportProducts} />
   </React.Fragment>
 );
 
