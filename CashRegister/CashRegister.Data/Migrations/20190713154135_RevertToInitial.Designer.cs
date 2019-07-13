@@ -4,14 +4,16 @@ using CashRegister.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CashRegister.Data.Migrations
 {
     [DbContext(typeof(CashRegisterContext))]
-    partial class CashRegisterContextModelSnapshot : ModelSnapshot
+    [Migration("20190713154135_RevertToInitial")]
+    partial class RevertToInitial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,20 +34,6 @@ namespace CashRegister.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Cashiers");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            FirstName = "Ante",
-                            LastName = "Antić"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            FirstName = "Ivo",
-                            LastName = "Ivić"
-                        });
                 });
 
             modelBuilder.Entity("CashRegister.Data.Entities.Models.CashierRegister", b =>
@@ -59,28 +47,6 @@ namespace CashRegister.Data.Migrations
                     b.HasIndex("RegisterId");
 
                     b.ToTable("CashiersRegisters");
-
-                    b.HasData(
-                        new
-                        {
-                            CashierId = 1,
-                            RegisterId = 2
-                        },
-                        new
-                        {
-                            CashierId = 1,
-                            RegisterId = 4
-                        },
-                        new
-                        {
-                            CashierId = 2,
-                            RegisterId = 2
-                        },
-                        new
-                        {
-                            CashierId = 2,
-                            RegisterId = 1
-                        });
                 });
 
             modelBuilder.Entity("CashRegister.Data.Entities.Models.Product", b =>
@@ -154,24 +120,6 @@ namespace CashRegister.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Registers");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1
-                        },
-                        new
-                        {
-                            Id = 2
-                        },
-                        new
-                        {
-                            Id = 3
-                        },
-                        new
-                        {
-                            Id = 4
-                        });
                 });
 
             modelBuilder.Entity("CashRegister.Data.Entities.Models.CashierRegister", b =>

@@ -48,6 +48,35 @@ namespace CashRegister.Data.Entities
                 .WithMany(pr => pr.ProductsReceipts)
                 .HasForeignKey(r => r.ReceiptId);
 
+            modelBuilder.Entity<Cashier>().HasData(
+                new Cashier
+                {
+                    Id = 1,
+                    FirstName = "Ante",
+                    LastName = "Antić",
+                },
+                new Cashier
+                {
+                    Id = 2,
+                    FirstName = "Ivo",
+                    LastName= "Ivić"
+                }
+            );
+
+            modelBuilder.Entity<Register>().HasData(
+                new Register { Id = 1 },
+                new Register { Id = 2 },
+                new Register { Id = 3 },
+                new Register { Id = 4 }
+            );
+
+            modelBuilder.Entity<CashierRegister>().HasData(
+                new CashierRegister { CashierId = 1, RegisterId = 2 },
+                new CashierRegister { CashierId = 1, RegisterId = 4 },
+                new CashierRegister { CashierId = 2, RegisterId = 2 },
+                new CashierRegister { CashierId = 2, RegisterId = 1 }
+
+            );
         }
     }
 }

@@ -13,4 +13,7 @@
     <ProjectReference Include="..\CashRegister.Data\CashRegister.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Helpers\HashHelper.cs" />
+  </ItemGroup>
 </Project>

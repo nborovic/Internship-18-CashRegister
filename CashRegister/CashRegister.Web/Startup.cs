@@ -29,6 +29,8 @@ namespace CashRegister.Web
 
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IReceiptRepository, ReceiptRepository>();
+            services.AddScoped<ICashierRepository, CashierRepository>();
+            services.AddScoped<IRegisterRepository, RegisterRepository>();
 
             services.AddMvc().AddJsonOptions(options => {
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
