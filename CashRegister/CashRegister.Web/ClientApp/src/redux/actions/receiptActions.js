@@ -20,6 +20,7 @@ export const getReceiptById = id => dispatch => {
 };
 
 export const getSlicedReceipts = (amount, beginningIndex) => dispatch => {
+  console.log("all");
   axios
     .get(
       `api/receipts/get-sliced?amount=${amount}&beginningIndex=${beginningIndex}`

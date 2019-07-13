@@ -10,11 +10,12 @@ import "../../styles/receipts.css";
 import ReceiptsList from "./ReceiptsList";
 
 const receiptsPerPage = 2;
+const undefinedDateInput = "NaN-NaN-NaN NaN:NaN:NaN";
 class Receipts extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      dateInputValue: ""
+      dateInputValue: undefinedDateInput
     };
   }
 
@@ -23,14 +24,11 @@ class Receipts extends Component {
   }
 
   handleDateInputChange = event => {
-    if (event.target.value === "") {
-      this.props.getSlicedReceipts(receiptsPerPage, 0);
-      return;
-    }
-
     const date = formatDate(new Date(event.target.value));
 
-    this.props.getReceiptsByDate(receiptsPerPage, 0, date);
+    if (event.target.value === "")
+      this.props.getSlicedReceipts(receiptsPerPage, 0);
+    else this.props.getReceiptsByDate(receiptsPerPage, 0, date);
 
     this.setState({ dateInputValue: date });
   };
@@ -38,7 +36,7 @@ class Receipts extends Component {
   handlePageDecrement = () => {
     if (this.props.page === 1) return;
 
-    if (this.props.dateInputValue === "")
+    if (this.state.dateInputValue === undefinedDateInput)
       this.props.getSlicedReceipts(
         receiptsPerPage,
         this.props.page * receiptsPerPage - receiptsPerPage * 2
@@ -54,7 +52,7 @@ class Receipts extends Component {
   handlePageIncrement = () => {
     if (this.props.page === this.props.totalPages) return;
 
-    if (this.props.dateInputValue === "")
+    if (this.state.dateInputValue === undefinedDateInput)
       this.props.getSlicedReceipts(
         receiptsPerPage,
         this.props.page * receiptsPerPage

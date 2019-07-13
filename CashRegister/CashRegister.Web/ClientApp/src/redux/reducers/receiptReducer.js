@@ -35,10 +35,10 @@ export default function(state = initialValues, action) {
     case GET_SLICED_RECEIPTS:
       return {
         ...state,
-        slicedItems: action.payload.data,
+        slicedItems: action.payload.item1,
         slicedItemsLoading: false,
-        page: action.payload.page,
-        totalPages: action.payload.totalPages
+        page: action.payload.item2,
+        totalPages: action.payload.item3
       };
     default:
       return state;

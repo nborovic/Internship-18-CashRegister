@@ -44,31 +44,25 @@ namespace CashRegister.Web.Controllers
 
         public IActionResult GetSliced(int amount, int beginningIndex, string dateAsString)
         {
+            var response = (Data: new List<Receipt>(), Page: 0, TotalPages: 0);
+
             if (dateAsString == null)
             {
-                var response = new
-                {
-                    Data = _receiptRepository.GetSliced(amount, beginningIndex),
-                    Page = (beginningIndex + amount) / amount,
-                    TotalPages = (_receiptRepository.GetAll().Count + amount - 1) / amount
-                };
-
-                return Ok(response);
+                response.Data = _receiptRepository.GetSliced(amount, beginningIndex);
+                response.Page = (beginningIndex + amount) / amount;
+                response.TotalPages = (_receiptRepository.GetAll().Count + amount - 1) / amount;
             }
             else
             {
                 var date = DateTime.Parse(dateAsString);
                 var receiptsByDate = _receiptRepository.GetByDate(date);
 
-                var response = new
-                {
-                    Data = _receiptRepository.GetSlicedByDate(amount, beginningIndex, date),
-                    Page = receiptsByDate.Count != 0 ? (beginningIndex + amount) / amount : 0,
-                    TotalPages = (receiptsByDate.Count + amount - 1) / amount
-                };
-
-                return Ok(response);
+                response.Data = _receiptRepository.GetSlicedByDate(amount, beginningIndex, date);
+                response.Page = receiptsByDate.Count != 0 ? (beginningIndex + amount) / amount : 0;
+                response.TotalPages = (receiptsByDate.Count + amount - 1) / amount;
             }
+
+            return Ok(response);
         }
 
         [HttpPost("add")]

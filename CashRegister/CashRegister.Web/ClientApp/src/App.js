@@ -1,6 +1,5 @@
 import React from "react";
 import { Route } from "react-router";
-import { Provider } from "react-redux";
 
 import Home from "./components/Home";
 import Products from "./components/Products/Products";
